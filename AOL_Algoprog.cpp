@@ -190,6 +190,7 @@ int main(){
             scanf ("%s", order);
             mengurutkanData (column, strcmp (order, "asc") == 0);
             printf("\n");
+			break;
             		case 4:
              char file [max_len];
             printf ("nama File: ");
