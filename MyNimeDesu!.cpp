@@ -56,7 +56,7 @@ void printToConsole(struct anime *list, int n){
 void sortDataASC(struct anime *list, int n){
 	int i,j;
 	anime temp;
-	for(i=0;i<n;i++){
+	for(i=0;i<n-1;i++){
 		for(j=0;j<n-i-1;j++){
 			if(list[j].rating > list[j+1].rating){
 				temp = list[j];
@@ -69,7 +69,7 @@ void sortDataASC(struct anime *list, int n){
 void sortDataDSC(struct anime *list, int n){
 	int i,j;
 	anime temp;
-	for(i=0;i<n;i++){
+	for(i=0;i<n-1;i++){
 		for(j=0;j<n-i-1;j++){
 			if(list[j].rating < list[j+1].rating){
 				temp = list[j];
@@ -79,11 +79,43 @@ void sortDataDSC(struct anime *list, int n){
 		}
 	}
 }
-int searchData(struct anime *list, int left, int right,int target){
+void sortDataStrASC(struct anime *list, int n){
+	int i,j;
+	anime temp;
+	for(i=0;i<n-1;i++){
+		for(j=0;j<n-1-i;j++){
+			if(strcmp(list[j].ID,list[j+1].ID) > 0){
+				temp = list[j];
+				list[j] = list[j+1];
+				list[j+1] = temp;
+			}
+		}
+	}
+}
+void sortDataStrDSC(struct anime *list, int n){
+	int i,j;
+	anime temp;
+	for(i=0;i<n-1;i++){
+		for(j=0;j<n-1-i;j++){
+			if(strcmp(list[j].ID,list[j+1].ID) < 0){
+				temp = list[j];
+				list[j] = list[j+1];
+				list[j+1] = temp;
+			}
+		}
+	}
+}
+
+int searchData(struct anime *list, int target,int n){
+	 int left = 0;
+    int right = n - 1;
+	int found = 0;
+	int mid;
 	while(left<=right){
-		int mid = left + (right - left)/2;
+		 mid = left + (right - left)/2;
 		if(list[mid].rating == target){
-			return mid;
+			found =1;
+			break;
 		}
 		if(list[mid].rating < target){
 			left = mid + 1;
@@ -91,17 +123,45 @@ int searchData(struct anime *list, int left, int right,int target){
 			right = mid - 1;
 		}
 	}
-	return -1;
+	 if (found) {
+        // Display the found element
+        printf("ID anime: %s \n", list[mid].ID);
+        printf("Judul anime: %s \n", list[mid].judul);
+        printf("Genre anime: %s \n", list[mid].genre);
+        printf("Rating anime: %d \n", list[mid].rating);
+
+        // Check elements to the left of mid
+        int i = mid - 1;
+        while (i >= 0 && list[i].rating == target) {
+            printf("ID anime: %s \n", list[i].ID);
+            printf("Judul anime: %s \n", list[i].judul);
+            printf("Genre anime: %s \n", list[i].genre);
+            printf("Rating anime: %d \n", list[i].rating);
+            i--;
+        }
+        
+        // Check elements to the right of mid
+        i = mid + 1;
+        while (i < n && list[i].rating == target) {
+            printf("ID anime: %s \n", list[i].ID);
+            printf("Judul anime: %s \n", list[i].judul);
+            printf("Genre anime: %s \n", list[i].genre);
+            printf("Rating anime: %d \n", list[i].rating);
+            i++;
+        }
+    } else {
+        printf("Anime dengan rating %d tidak ditemukan\n", target);
+    }
 }
 void menu(){
 	printf("=================================\n");
-	printf("SELAMAT DATANG DI MYnimedesu!\n ");
+	printf("SELAMAT DATANG DI MYnimedesu!\n");
 	printf("=================================\n");
 	printf("Silahkan pilih menunya: \n");
 	printf("1.Input data: \n ");
 	printf("2.Display data: \n");
-	printf("3.Sort data(by rating): \n");
-	printf("4.Search data(by rating): \n");
+	printf("3.Sort data: \n");
+	printf("4.Search data(by rating[1-10]): \n");
 	printf("5.Exit: \n");
 }
 int main(){
@@ -128,37 +188,54 @@ int main(){
 					break;
 					case 3:
 						char str[10];
+						char str2[10];
+						char str3[10];
 						readFromFile(fp,list,n);
+						printf("mau sort by rating atau by ID?: ");
+						scanf("%s",str2);
+						
+						if(strlen(str2) == 2){
+							printf("mau urutan menaik atau menurun?: ");
+							scanf("%s",str3);
+							if(strlen(str3) == 6){
+							sortDataStrASC(list,n);
+							printToConsole(list,n);
+							printf("data berhasil diSort! \n");
+							}
+							if(strlen(str3) == 7){
+							sortDataStrDSC(list,n);
+							printToConsole(list,n);
+							printf("data berhasil diSort! \n");
+							}
+						}
+						
+						if(strlen(str2) == 6){
 						printf("mau urutan menaik atau menurun?: ");
 						scanf("%s",str);
 						getchar();
 						if(strlen(str) == 6){
 							sortDataASC(list,n);
 							printToConsole(list,n);
+							printf("data berhasil diSort! \n");
 						}if(strlen(str) == 7){
 						sortDataDSC(list,n);
 						printToConsole(list,n);
+						printf("data berhasil diSort! \n");
+						
 						}
+					}
 						break;
+
 						case 4:
 							int target;
-							int index;
 							readFromFile(fp,list,n);
 							sortDataASC(list,n);
 							printf("Anime Rating brapa mau di cari?: ");
 							scanf("%d",&target);
-							index = searchData(list,0,n-1,target);
-							if(index != -1){
-                    printf("Anime ditemukan di index %d:\n", index);
-                    printf("ID anime: %s \n",list[index].ID);
-                    printf("Judul anime: %s \n",list[index].judul);
-                    printf("Genre anime: %s \n",list[index].genre);
-                    printf("Rating anime: %d \n",list[index].rating);
-                } else {
-                    printf("Anime dengan rating %d tidak ditemukan\n", target);
-                }
-							
+							searchData(list,target,n);
+							break;		
 		}
+		
 	}while(pilihan != 5);
-	
+	return 0;
 }
